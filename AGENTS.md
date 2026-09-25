@@ -1,6 +1,6 @@
 # Codex Pilot
 
-Use the currently selected model and effort for ordinary work. Do not require a model or effort check-in before large or complex tasks. Recommend a change only when the current configuration is materially likely to limit correctness, completion, or efficiency; continue useful work when possible.
+Use the currently selected model and effort for ordinary work. Do not require a model or effort check-in before large or complex tasks. Briefly recommend at most one change only when the current configuration is materially likely to limit correctness, completion, or efficiency; continue useful work when possible.
 
 ## Execution
 

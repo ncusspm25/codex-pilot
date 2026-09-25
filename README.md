@@ -8,39 +8,45 @@ English | [繁體中文](README.zh-TW.md)
 
 It changes the instructions Codex follows. It does not change the model picker, grant permissions, override higher-priority rules, or install a runtime. There is no package or daemon.
 
+Large tasks can stall when Codex asks about model or effort before touching the work. This file tells it to start with the setting already chosen, carry authorized work through each phase, and save questions for decisions that need the user's authority.
+
 ## Install
 
-Codex reads user-level instructions from `~/.codex/AGENTS.md`. On Windows, the equivalent location is `%USERPROFILE%\.codex\AGENTS.md`. See [OpenAI's Codex guidance for AGENTS.md](https://developers.openai.com/api/docs/guides/latest-model#using-agentsmd).
+By default, Codex reads user-level instructions from `~/.codex/AGENTS.md`. On Windows, the equivalent location is `%USERPROFILE%\.codex\AGENTS.md`. If you set `CODEX_HOME`, use `AGENTS.md` in that directory instead. See [OpenAI's Codex guidance for AGENTS.md](https://developers.openai.com/codex/guides/agents-md).
 
 Back up or merge an existing global `AGENTS.md`; do not overwrite your personal rules. If the file does not exist, copy this repository's `AGENTS.md` to the global location.
 
 macOS or Linux, from the repository directory:
 
 ```sh
-mkdir -p ~/.codex
-if [ -e ~/.codex/AGENTS.md ]; then
-  printf '%s\n' 'Merge AGENTS.md with the existing ~/.codex/AGENTS.md; no file was overwritten.'
+codex_home="${CODEX_HOME:-$HOME/.codex}"
+mkdir -p "$codex_home"
+if [ -e "$codex_home/AGENTS.md" ]; then
+  printf '%s\n' 'Merge AGENTS.md with the existing global file; no file was overwritten.'
 else
-  cp AGENTS.md ~/.codex/AGENTS.md
+  cp AGENTS.md "$codex_home/AGENTS.md"
 fi
 ```
 
 Windows PowerShell, from the repository directory:
 
 ```powershell
-$target = Join-Path $env:USERPROFILE ".codex\AGENTS.md"
-New-Item -ItemType Directory -Force (Split-Path $target) | Out-Null
+$codexHome = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $env:USERPROFILE ".codex" }
+$target = Join-Path $codexHome "AGENTS.md"
+New-Item -ItemType Directory -Force $codexHome | Out-Null
 if (Test-Path -LiteralPath $target) {
     throw "Merge AGENTS.md with the existing global file; no file was overwritten."
 }
 Copy-Item -LiteralPath .\AGENTS.md -Destination $target
 ```
 
-Start a new Codex session after installing. Project-level `AGENTS.md` files can add more specific instructions.
+Start a new Codex session after installing. If `AGENTS.override.md` exists in your Codex home, Codex reads it instead of `AGENTS.md`; merge your policy there. Project-level `AGENTS.md` files can add more specific instructions.
 
 ## Model and effort
 
 The policy starts with the model and effort already selected. For ordinary work, Codex proceeds and adjusts its investigation and verification to the task. It can briefly recommend one better configuration when the current one is materially limiting the result, and should keep working when useful work remains possible.
+
+The model supplies the underlying capability; effort controls reasoning depth. Codex Pilot sets the default working policy. A Skill adds an optional workflow for a particular task.
 
 ```text
 Task → current model and effort → work → proportional verification
@@ -63,6 +69,8 @@ For long tasks, the policy asks Codex to carry forward the objective, constraint
 `codex-pilot` is a global operating policy. Skills are optional, task-specific workflows; use them according to the user's choice and the host's rules. This repository does not require users to disable Skills globally.
 
 [Opus Mode for Codex](https://github.com/ncusspm25/opus-mode-for-codex) is a separate optional Skill for long-horizon work. It is not a dependency.
+
+For a shorter policy, see the [minimal example](examples/minimal.md). The [Skill opt-in example](examples/skill-opt-in.md) shows how to require explicit activation for a particular Skill.
 
 ## Limits
 

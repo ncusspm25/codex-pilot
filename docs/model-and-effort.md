@@ -12,4 +12,4 @@ Recommend a different configuration only when the current one is materially like
 
 When a configuration concern arises, separate it from task authorization. If reliable work can continue, proceed with the safe and useful parts while stating the limitation when it matters. Stop for the minimum user action only when the current configuration prevents reliable completion or when a decision genuinely belongs to the user.
 
-Model and effort tradeoffs include quality, latency, cost, available tools, and the amount of verification the task needs. This policy does not rank specific models; availability and behavior change over time. It is not a model router and does not call another provider.
+Model and effort tradeoffs include quality, latency, cost, available tools, and the amount of verification the task needs. A recommendation can help when those tradeoffs materially affect the result; requiring one before every large task adds interruptions and delays authorized work. This policy does not rank specific models; availability and behavior change over time. It is not a model router and does not call another provider.

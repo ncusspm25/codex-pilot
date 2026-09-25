@@ -8,39 +8,45 @@
 
 它調整的是 Codex 會遵循的工作指示，不會切換 model picker、增加權限或覆蓋更高優先級的規則。它不需要安裝套件，也沒有常駐程式。
 
+大型任務有時還沒開始處理，就先卡在 model 或 effort 的確認。這份檔案讓 Codex 沿用你選好的設定、延續已授權的工作；只有遇到需要你決定的操作才停下來問。
+
 ## 安裝
 
-Codex 會從 `~/.codex/AGENTS.md` 讀取使用者層級的指示。Windows 對應路徑是 `%USERPROFILE%\.codex\AGENTS.md`。可參考 [OpenAI 的 Codex AGENTS.md 說明](https://developers.openai.com/api/docs/guides/latest-model#using-agentsmd)。
+Codex 預設從 `~/.codex/AGENTS.md` 讀取使用者層級的指示。Windows 對應路徑是 `%USERPROFILE%\.codex\AGENTS.md`。如果設定了 `CODEX_HOME`，請改用該資料夾內的 `AGENTS.md`。可參考 [OpenAI 的 Codex AGENTS.md 說明](https://developers.openai.com/codex/guides/agents-md)。
 
 如果你已經有全域 `AGENTS.md`，請先備份，再手動合併內容；不要直接覆蓋自己的規則。只有在目標檔案不存在時，才直接複製本 repo 的 `AGENTS.md`。
 
 macOS 或 Linux：在 repo 資料夾執行：
 
 ```sh
-mkdir -p ~/.codex
-if [ -e ~/.codex/AGENTS.md ]; then
-  printf '%s\n' '請將 AGENTS.md 與既有的 ~/.codex/AGENTS.md 合併；未覆寫任何檔案。'
+codex_home="${CODEX_HOME:-$HOME/.codex}"
+mkdir -p "$codex_home"
+if [ -e "$codex_home/AGENTS.md" ]; then
+  printf '%s\n' '請將 AGENTS.md 與既有的全域檔案合併；未覆寫任何檔案。'
 else
-  cp AGENTS.md ~/.codex/AGENTS.md
+  cp AGENTS.md "$codex_home/AGENTS.md"
 fi
 ```
 
 Windows PowerShell：在 repo 資料夾執行：
 
 ```powershell
-$target = Join-Path $env:USERPROFILE ".codex\AGENTS.md"
-New-Item -ItemType Directory -Force (Split-Path $target) | Out-Null
+$codexHome = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $env:USERPROFILE ".codex" }
+$target = Join-Path $codexHome "AGENTS.md"
+New-Item -ItemType Directory -Force $codexHome | Out-Null
 if (Test-Path -LiteralPath $target) {
     throw "請手動合併既有的全域 AGENTS.md；未覆寫任何檔案。"
 }
 Copy-Item -LiteralPath .\AGENTS.md -Destination $target
 ```
 
-安裝後開啟新的 Codex session。專案內的 `AGENTS.md` 可以再補上更具體的指示。
+安裝後開啟新的 Codex session。如果 Codex 主目錄內有 `AGENTS.override.md`，Codex 會優先讀取它；請將 policy 合併到該檔案。專案內的 `AGENTS.md` 可以再補上更具體的指示。
 
 ## Model 與 effort
 
 這份 policy 預設沿用你目前選好的 model 和 effort。一般任務直接開始做，並依工作內容調整調查深度與驗證方式。只有當目前設定很可能明顯影響正確性、完成品質或效率時，才簡短建議一個更合適的設定；只要還有可安全完成的工作，就繼續處理。
+
+Model 決定底層能力，effort 控制推理深度；Codex Pilot 設定平常的工作方式，Skill 則是針對特定任務額外啟用的流程。
 
 ```text
 收到任務 → 沿用目前 model 和 effort → 執行 → 按影響程度驗證
@@ -63,6 +69,8 @@ Copy-Item -LiteralPath .\AGENTS.md -Destination $target
 `codex-pilot` 是全域工作 policy；Skills 則是可選的任務流程，依使用者選擇和 Codex 環境的規則使用。本 repo 不要求所有人停用 Skills。
 
 [Opus Mode for Codex](https://github.com/ncusspm25/opus-mode-for-codex) 是獨立的長任務 Skill，並非本 repo 的依賴。
+
+想減少全域指示內容，可以參考[精簡版範例](examples/minimal.md)；[Skill 啟用範例](examples/skill-opt-in.md)則示範如何要求明確啟用某個 Skill。
 
 ## 限制
 
